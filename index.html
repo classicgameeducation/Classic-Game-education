@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Classic Game Education</title>
 
 <style>
@@ -13,12 +14,18 @@ margin:0;
 padding:0;
 background:linear-gradient(135deg,#6a0dad,#4b0082);
 color:#fff;
+/* Centraliza tudo na tela */
+display: flex;
+flex-direction: column;
+align-items: center;
+min-height: 100vh;
 }
 
 h1{
 margin-top:30px;
 text-shadow:0 0 15px #fff;
 animation:tituloGlow 3s infinite alternate;
+font-size: 28px;
 }
 
 @keyframes tituloGlow{
@@ -31,9 +38,14 @@ background:rgba(0,0,0,0.6);
 padding:20px;
 border-radius:15px;
 display:inline-block;
-margin-top:30px;
+margin-top:20px;
+margin-bottom: 20px;
 box-shadow:0 8px 16px rgba(0,0,0,0.7);
 animation:entrada .6s ease;
+/* Ajusta o tamanho para ocupar a tela do celular */
+width: 90%;
+max-width: 400px;
+box-sizing: border-box;
 }
 
 @keyframes entrada{
@@ -42,35 +54,38 @@ animation:entrada .6s ease;
 }
 
 button{
-padding:10px 20px;
-margin:5px;
-font-size:16px;
+padding:12px 20px;
+margin:8px;
+font-size:18px;
 border-radius:12px;
 border:2px solid #ccc;
 cursor:pointer;
 background:#222;
 color:#fff;
 transition:all .2s;
+width: 80%; /* Botões maiores para facilitar o toque */
 }
 
 button:hover{
 background:#555;
 border-color:#fff;
-transform:scale(1.1);
+transform:scale(1.05);
 box-shadow:0 0 12px #fff;
 }
 
 input,select{
-padding:10px;
+padding:12px;
 font-size:16px;
 border-radius:10px;
 border:2px solid #ccc;
-margin:5px 0;
+margin:8px 0;
+width: 90%; /* Inputs ocupando quase toda a largura do card */
+box-sizing: border-box;
 }
 
 .resposta{
 display:block;
-width:200px;
+width:90%;
 margin:10px auto;
 }
 
@@ -90,7 +105,7 @@ margin:10px 0;
 #timer{font-size:22px;}
 
 #timeBarBox{
-width:300px;
+width:90%;
 height:20px;
 background:#333;
 margin:10px auto;
@@ -119,6 +134,16 @@ color:gold;
 animation:campeao 2s infinite;
 }
 
+ul {
+    list-style: none;
+    padding: 0;
+    font-size: 18px;
+}
+
+li {
+    margin: 5px 0;
+}
+
 </style>
 </head>
 
@@ -132,7 +157,7 @@ animation:campeao 2s infinite;
 
 <h2>Criar sala</h2>
 
-<input id="teamName" placeholder="Nome da equipe"><br><br>
+<input id="teamName" placeholder="Nome da equipe"><br>
 
 <select id="serie">
 <option value="">Escolha a Série</option>
@@ -142,7 +167,7 @@ animation:campeao 2s infinite;
 <option value="7">7º ano</option>
 </select>
 
-<br><br>
+<br>
 
 <select id="materia">
 <option value="">Escolha a Matéria</option>
@@ -151,7 +176,7 @@ animation:campeao 2s infinite;
 <option value="ciencias">Ciências</option>
 </select>
 
-<br><br>
+<br>
 
 <button onclick="createRoom()">Criar sala</button>
 
@@ -165,7 +190,7 @@ animation:campeao 2s infinite;
 <br>
 <input id="teamNameJoin" placeholder="Nome da equipe">
 
-<br><br>
+<br>
 
 <button onclick="joinRoom()">Entrar</button>
 
