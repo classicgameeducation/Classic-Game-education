@@ -1,6 +1,11 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html>
+<head>
 <meta charset="UTF-8">
-<title>Classic Game Education</title><style>
+<title>Classic Game Education</title>
+
+<style>
+
 body{
 font-family:Arial,sans-serif;
 text-align:center;
@@ -55,7 +60,7 @@ transform:scale(1.1);
 box-shadow:0 0 12px #fff;
 }
 
-input{
+input,select{
 padding:10px;
 font-size:16px;
 border-radius:10px;
@@ -67,12 +72,6 @@ margin:5px 0;
 display:block;
 width:200px;
 margin:10px auto;
-transition:all .2s;
-}
-
-.resposta:hover{
-transform:scale(1.1);
-box-shadow:0 0 12px #fff;
 }
 
 #codeCard{
@@ -88,10 +87,7 @@ margin:10px 0;
 
 .section{margin-bottom:30px;}
 
-#timer{
-font-size:22px;
-margin-bottom:10px;
-}
+#timer{font-size:22px;}
 
 #timeBarBox{
 width:300px;
@@ -109,8 +105,12 @@ background:linear-gradient(90deg,#00ff88,#00ffaa);
 transition:width 1s linear;
 }
 
-#winnerScreen{
-display:none;
+/* ANIMAÇÃO DO CAMPEÃO */
+
+@keyframes campeao{
+0%{transform:scale(1);text-shadow:0 0 10px gold;}
+50%{transform:scale(1.2);text-shadow:0 0 30px gold;}
+100%{transform:scale(1);text-shadow:0 0 10px gold;}
 }
 
 #winnerName{
@@ -119,34 +119,62 @@ color:gold;
 animation:campeao 2s infinite;
 }
 
-@keyframes campeao{
-0%{transform:scale(1);text-shadow:0 0 10px gold;}
-50%{transform:scale(1.15);text-shadow:0 0 30px gold;}
-100%{transform:scale(1);text-shadow:0 0 10px gold;}
-}
-</style></head><body><h1>Classic Game Education</h1>
+</style>
+</head>
+
+<body>
+
+<h1>Classic Game Education</h1>
 
 <div id="menu">
 
 <div class="section">
+
 <h2>Criar sala</h2>
-<input id="teamName" placeholder="Nome da equipe">
+
+<input id="teamName" placeholder="Nome da equipe"><br><br>
+
+<select id="serie">
+<option value="">Escolha a Série</option>
+<option value="4">4º ano</option>
+<option value="5">5º ano</option>
+<option value="6">6º ano</option>
+<option value="7">7º ano</option>
+</select>
+
 <br><br>
+
+<select id="materia">
+<option value="">Escolha a Matéria</option>
+<option value="matematica">Matemática</option>
+<option value="portugues">Português</option>
+<option value="ciencias">Ciências</option>
+</select>
+
+<br><br>
+
 <button onclick="createRoom()">Criar sala</button>
+
 </div>
 
 <div class="section">
+
 <h2>Entrar em sala</h2>
+
 <input id="roomCode" placeholder="Código da sala">
 <br>
 <input id="teamNameJoin" placeholder="Nome da equipe">
+
 <br><br>
+
 <button onclick="joinRoom()">Entrar</button>
+
 </div>
 
 </div>
 
 <div id="room" style="display:none">
+
 <h2>Sala</h2>
 
 <div id="codeCard">Código: <span id="code"></span></div>
@@ -180,23 +208,11 @@ Iniciar jogo
 
 </div>
 
-<div id="winnerScreen">
+<div id="winnerScreen" style="display:none">
 <h1>🏆 CAMPEÃO 🏆</h1>
 <h2 id="winnerName"></h2>
 <button onclick="location.reload()">Jogar novamente</button>
 </div>
-
-<audio id="musicaFundo" loop>
-<source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
-</audio>
-
-<audio id="acerto">
-<source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg">
-</audio>
-
-<audio id="erro">
-<source src="https://actions.google.com/sounds/v1/cartoon/boing.ogg">
-</audio>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -225,18 +241,37 @@ let pontos=0;
 let tempo=10;
 let timer;
 
+let serieEscolhida="";
+let materiaEscolhida="";
+
 function generateCode(){
 return Math.random().toString(36).substring(2,7).toUpperCase();
 }
 
 function createRoom(){
+
 teamName=document.getElementById("teamName").value;
+serieEscolhida=document.getElementById("serie").value;
+materiaEscolhida=document.getElementById("materia").value;
+
 if(teamName==""){alert("Digite o nome");return;}
+if(serieEscolhida==""){alert("Escolha a série");return;}
+if(materiaEscolhida==""){alert("Escolha a matéria");return;}
+
+if(materiaEscolhida!="matematica"){
+alert("Erro! Esta matéria ainda não está disponível e está sendo criada pelos desenvolvedores, volte outro dia!");
+return;
+}
 
 roomCode=generateCode();
 leader=true;
 
-db.ref("rooms/"+roomCode).set({started:false});
+db.ref("rooms/"+roomCode).set({
+started:false,
+serie:serieEscolhida,
+materia:materiaEscolhida
+});
+
 db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
 
 enterRoom();
@@ -251,24 +286,21 @@ if(code==""||teamName==""){alert("Preencha tudo");return;}
 
 roomCode=code;
 
-db.ref("rooms/"+roomCode+"/teams").once("value",snap=>{
-
-if(snap.numChildren()>=10){
-alert("Sala cheia (10 equipes)");
-return;
-}
+db.ref("rooms/"+roomCode).once("value",snap=>{
+serieEscolhida=snap.val().serie;
+materiaEscolhida=snap.val().materia;
+});
 
 db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
+
 enterRoom();
 
-});
 }
 
 function enterRoom(){
 
 document.getElementById("menu").style.display="none";
 document.getElementById("room").style.display="block";
-
 document.getElementById("code").innerText=roomCode;
 
 db.ref("rooms/"+roomCode+"/teams").on("value",snapshot=>{
@@ -277,16 +309,9 @@ let list=document.getElementById("teams");
 list.innerHTML="";
 
 snapshot.forEach(child=>{
-
 let li=document.createElement("li");
-
-if(child.key==teamName && leader)
-li.innerText=child.key+" 👑";
-else
 li.innerText=child.key;
-
 list.appendChild(li);
-
 });
 
 });
@@ -296,17 +321,18 @@ atualizarRanking();
 if(leader)
 document.getElementById("startBtn").style.display="block";
 
-/* ADIÇÃO MULTIPLAYER */
 db.ref("rooms/"+roomCode+"/started").on("value",snap=>{
 if(snap.val()==true){
+
 document.getElementById("room").style.display="none";
 document.getElementById("quiz").style.display="block";
-document.getElementById("musicaFundo").volume=0.2;
-document.getElementById("musicaFundo").play();
+
 if(perguntas.length==0){
+gerarPerguntas();
 prepararPerguntas();
 mostrarPergunta();
 }
+
 }
 });
 
@@ -353,21 +379,48 @@ db.ref("rooms/"+roomCode+"/started").set(true);
 
 let todasPerguntas=[];
 
-for(let i=1;i<=50;i++){
+function gerarPerguntas(){
 
-let a=Math.floor(Math.random()*20)+1;
-let b=Math.floor(Math.random()*20)+1;
+for(let i=0;i<50;i++){
 
-let correta=a+b;
+let a=Math.floor(Math.random()*10)+1;
+let b=Math.floor(Math.random()*10)+1;
+
+let pergunta="";
+let correta=0;
+
+if(serieEscolhida=="4"){
+pergunta=a+" + "+b+" = ?";
+correta=a+b;
+}
+
+if(serieEscolhida=="5"){
+pergunta=a+" × "+b+" = ?";
+correta=a*b;
+}
+
+if(serieEscolhida=="6"){
+pergunta=a+" × "+b+" + "+b+" = ?";
+correta=(a*b)+b;
+}
+
+if(serieEscolhida=="7"){
+let raiz=a*a;
+pergunta="√"+raiz+" = ?";
+correta=a;
+}
 
 let respostas=[correta,correta+1,correta-1,correta+2];
+
 respostas.sort(()=>Math.random()-0.5);
 
 todasPerguntas.push({
-p:a+" + "+b+" = ?",
+p:pergunta,
 r:respostas,
 c:respostas.indexOf(correta)
 });
+
+}
 
 }
 
@@ -437,13 +490,11 @@ let btn=document.getElementById("r"+num);
 if(num==q.c){
 
 btn.style.background="green";
-document.getElementById("acerto").play();
 pontos++;
 
 }else{
 
 btn.style.background="red";
-document.getElementById("erro").play();
 
 }
 
