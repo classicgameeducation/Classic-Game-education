@@ -6,7 +6,6 @@
 <title>Classic Game Education</title>
 
 <style>
-
 body{
 font-family:Arial,sans-serif;
 text-align:center;
@@ -14,7 +13,6 @@ margin:0;
 padding:0;
 background:linear-gradient(135deg,#6a0dad,#4b0082);
 color:#fff;
-/* Centraliza tudo na tela */
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -42,7 +40,6 @@ margin-top:20px;
 margin-bottom: 20px;
 box-shadow:0 8px 16px rgba(0,0,0,0.7);
 animation:entrada .6s ease;
-/* Ajusta o tamanho para ocupar a tela do celular */
 width: 90%;
 max-width: 400px;
 box-sizing: border-box;
@@ -63,7 +60,7 @@ cursor:pointer;
 background:#222;
 color:#fff;
 transition:all .2s;
-width: 80%; /* Botões maiores para facilitar o toque */
+width: 80%;
 }
 
 button:hover{
@@ -79,7 +76,7 @@ font-size:16px;
 border-radius:10px;
 border:2px solid #ccc;
 margin:8px 0;
-width: 90%; /* Inputs ocupando quase toda a largura do card */
+width: 90%;
 box-sizing: border-box;
 }
 
@@ -120,8 +117,6 @@ background:linear-gradient(90deg,#00ff88,#00ffaa);
 transition:width 1s linear;
 }
 
-/* ANIMAÇÃO DO CAMPEÃO */
-
 @keyframes campeao{
 0%{transform:scale(1);text-shadow:0 0 10px gold;}
 50%{transform:scale(1.2);text-shadow:0 0 30px gold;}
@@ -144,6 +139,39 @@ li {
     margin: 5px 0;
 }
 
+#devLink {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 14px;
+    color: #ccc;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+#devModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background-color: #2e0854;
+    margin: 10% auto;
+    padding: 25px;
+    border: 2px solid #fff;
+    border-radius: 15px;
+    width: 85%;
+    max-width: 450px;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.modal-content h2 { text-align: center; color: gold; margin-top: 0; }
+.close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
 </style>
 </head>
 
@@ -152,98 +180,106 @@ li {
 <h1>Classic Game Education</h1>
 
 <div id="menu">
+    <div class="section">
+        <h2>Criar sala</h2>
+        <input id="teamName" placeholder="Nome da equipe"><br><br>
+        <select id="serie">
+            <option value="">Escolha a Série</option>
+            <option value="4">4º ano</option>
+            <option value="5">5º ano</option>
+            <option value="6">6º ano</option>
+            <option value="7">7º ano</option>
+        </select>
+        <br><br>
+        <select id="materia">
+            <option value="">Escolha a Matéria</option>
+            <option value="matematica">Matemática</option>
+            <option value="portugues">Português</option>
+            <option value="ciencias">Ciências</option>
+        </select>
+        <br><br>
+        <button onclick="createRoom()">Criar sala</button>
+    </div>
 
-<div class="section">
-
-<h2>Criar sala</h2>
-
-<input id="teamName" placeholder="Nome da equipe"><br>
-
-<select id="serie">
-<option value="">Escolha a Série</option>
-<option value="4">4º ano</option>
-<option value="5">5º ano</option>
-<option value="6">6º ano</option>
-<option value="7">7º ano</option>
-</select>
-
-<br>
-
-<select id="materia">
-<option value="">Escolha a Matéria</option>
-<option value="matematica">Matemática</option>
-<option value="portugues">Português</option>
-<option value="ciencias">Ciências</option>
-</select>
-
-<br>
-
-<button onclick="createRoom()">Criar sala</button>
-
-</div>
-
-<div class="section">
-
-<h2>Entrar em sala</h2>
-
-<input id="roomCode" placeholder="Código da sala">
-<br>
-<input id="teamNameJoin" placeholder="Nome da equipe">
-
-<br>
-
-<button onclick="joinRoom()">Entrar</button>
-
-</div>
-
+    <div class="section">
+        <h2>Entrar em sala</h2>
+        <input id="roomCode" placeholder="Código da sala">
+        <br>
+        <input id="teamNameJoin" placeholder="Nome da equipe">
+        <br><br>
+        <button onclick="joinRoom()">Entrar</button>
+    </div>
 </div>
 
 <div id="room" style="display:none">
-
-<h2>Sala</h2>
-
-<div id="codeCard">Código: <span id="code"></span></div>
-
-<h3>Equipes:</h3>
-<ul id="teams"></ul>
-
-<h3>Ranking ao vivo</h3>
-<ul id="ranking"></ul>
-
-<button id="startBtn" onclick="startGame()" style="display:none">
-Iniciar jogo
-</button>
-
+    <h2>Sala</h2>
+    <div id="codeCard">Código: <span id="code"></span></div>
+    <h3>Equipes:</h3>
+    <ul id="teams"></ul>
+    <h3>Ranking ao vivo</h3>
+    <ul id="ranking"></ul>
+    <button id="startBtn" onclick="startGame()" style="display:none">Iniciar jogo</button>
 </div>
 
 <div id="quiz" style="display:none">
-
-<h3 id="timer">Tempo: 10</h3>
-
-<div id="timeBarBox">
-<div id="timeBar"></div>
-</div>
-
-<h2 id="pergunta"></h2>
-
-<button class="resposta" id="r0" onclick="responder(0)"></button>
-<button class="resposta" id="r1" onclick="responder(1)"></button>
-<button class="resposta" id="r2" onclick="responder(2)"></button>
-<button class="resposta" id="r3" onclick="responder(3)"></button>
-
+    <h3 id="timer">Tempo: 10</h3>
+    <div id="timeBarBox">
+        <div id="timeBar"></div>
+    </div>
+    <h2 id="pergunta"></h2>
+    <button class="resposta" id="r0" onclick="responder(0)"></button>
+    <button class="resposta" id="r1" onclick="responder(1)"></button>
+    <button class="resposta" id="r2" onclick="responder(2)"></button>
+    <button class="resposta" id="r3" onclick="responder(3)"></button>
 </div>
 
 <div id="winnerScreen" style="display:none">
-<h1>🏆 CAMPEÃO 🏆</h1>
-<h2 id="winnerName"></h2>
-<button onclick="location.reload()">Jogar novamente</button>
+    <h1>🏆 CAMPEÃO 🏆</h1>
+    <h2 id="winnerName"></h2>
+    <button onclick="location.reload()">Jogar novamente</button>
 </div>
+
+<p id="devLink" onclick="abrirModal()">Desenvolvedores</p>
+
+<div id="devModal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="fecharModal()">&times;</span>
+    <h2>CGE Studio</h2>
+    <p>Olá, somos os Desenvolvedores da <strong>Classic Games Education</strong> e desenvolvemos esse site de gaming para as escolas de todo o mundo!</p>
+    <p>Esta é a versão 1.0 do Site e nela existem alguns itens:</p>
+    <ul style="list-style: none; padding-left: 0;">
+      <li>• Criar equipes 🧒🧑‍🦰🧑‍🦳</li>
+      <li>• Entrar em equipes por códigos 👾</li>
+      <li>• 1 matéria disponível (matemática) ➕🟰</li>
+      <li>• Quiz de 10 perguntas ❓</li>
+      <li>• Tela de vencedor no final 🏆</li>
+      <li>• Séries escolares 🏫</li>
+    </ul>
+    <p><strong>Em breve:</strong></p>
+    <ul style="list-style: none; padding-left: 0;">
+      <li>• 3 matérias disponíveis.</li>
+      <li>• Mais séries escolares.</li>
+      <li>• Design melhorado.</li>
+      <li>• Melhor animação.</li>
+    </ul>
+    <p style="text-align:right; margin-top:20px;"><em>Ass: CGE Studio.</em></p>
+  </div>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_4c2e6e6c6f.mp3" type="audio/mpeg">
+</audio>
+<audio id="correctSound">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_270a7b1a6a.mp3" type="audio/mpeg">
+</audio>
+<audio id="wrongSound">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_9c0e4f7c3a.mp3" type="audio/mpeg">
+</audio>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-
 const firebaseConfig={
 apiKey:"AIzaSyBctuZsRtJYFhjsqsu3gBJKgE9QaQI-Dy0",
 authDomain:"app-neri-e-enzo.firebaseapp.com",
@@ -265,7 +301,6 @@ let perguntaAtual=0;
 let pontos=0;
 let tempo=10;
 let timer;
-
 let serieEscolhida="";
 let materiaEscolhida="";
 
@@ -274,7 +309,6 @@ return Math.random().toString(36).substring(2,7).toUpperCase();
 }
 
 function createRoom(){
-
 teamName=document.getElementById("teamName").value;
 serieEscolhida=document.getElementById("serie").value;
 materiaEscolhida=document.getElementById("materia").value;
@@ -284,7 +318,7 @@ if(serieEscolhida==""){alert("Escolha a série");return;}
 if(materiaEscolhida==""){alert("Escolha a matéria");return;}
 
 if(materiaEscolhida!="matematica"){
-alert("Erro! Esta matéria ainda não está disponível e está sendo criada pelos desenvolvedores, volte outro dia!");
+alert("Erro! Esta matéria ainda não está disponível!");
 return;
 }
 
@@ -298,278 +332,158 @@ materia:materiaEscolhida
 });
 
 db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
-
 enterRoom();
 }
 
 function joinRoom(){
-
 let code=document.getElementById("roomCode").value.toUpperCase();
 teamName=document.getElementById("teamNameJoin").value;
-
 if(code==""||teamName==""){alert("Preencha tudo");return;}
-
 roomCode=code;
-
 db.ref("rooms/"+roomCode).once("value",snap=>{
 serieEscolhida=snap.val().serie;
 materiaEscolhida=snap.val().materia;
 });
-
 db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
-
 enterRoom();
-
 }
 
 function enterRoom(){
-
 document.getElementById("menu").style.display="none";
 document.getElementById("room").style.display="block";
 document.getElementById("code").innerText=roomCode;
-
 db.ref("rooms/"+roomCode+"/teams").on("value",snapshot=>{
-
 let list=document.getElementById("teams");
 list.innerHTML="";
-
 snapshot.forEach(child=>{
 let li=document.createElement("li");
 li.innerText=child.key;
 list.appendChild(li);
 });
-
 });
-
 atualizarRanking();
-
-if(leader)
-document.getElementById("startBtn").style.display="block";
+if(leader) document.getElementById("startBtn").style.display="block";
 
 db.ref("rooms/"+roomCode+"/started").on("value",snap=>{
 if(snap.val()==true){
-
 document.getElementById("room").style.display="none";
 document.getElementById("quiz").style.display="block";
+// INICIA A MÚSICA
+document.getElementById("bgMusic").play();
 
 if(perguntas.length==0){
 gerarPerguntas();
 prepararPerguntas();
 mostrarPergunta();
-}
-
-}
-});
-
+}}} );
 }
 
 function atualizarRanking(){
-
 db.ref("rooms/"+roomCode+"/teams").on("value",snap=>{
-
 let lista=[];
-
 snap.forEach(child=>{
-lista.push({
-nome:child.key,
-score:child.val().score||0
+lista.push({nome:child.key, score:child.val().score||0});
 });
-});
-
 lista.sort((a,b)=>b.score-a.score);
-
 let rank=document.getElementById("ranking");
 rank.innerHTML="";
-
 lista.forEach((t,i)=>{
-
 let li=document.createElement("li");
-
-if(i==0)
-li.innerText="👑 "+t.nome+" - "+t.score;
-else
-li.innerText=t.nome+" - "+t.score;
-
+if(i==0) li.innerText="👑 "+t.nome+" - "+t.score;
+else li.innerText=t.nome+" - "+t.score;
 rank.appendChild(li);
-
-});
-
-});
-
+}); });
 }
 
-function startGame(){
-db.ref("rooms/"+roomCode+"/started").set(true);
-}
+function startGame(){ db.ref("rooms/"+roomCode+"/started").set(true); }
 
 let todasPerguntas=[];
-
 function gerarPerguntas(){
-
 for(let i=0;i<50;i++){
-
 let a=Math.floor(Math.random()*10)+1;
 let b=Math.floor(Math.random()*10)+1;
-
-let pergunta="";
-let correta=0;
-
-if(serieEscolhida=="4"){
-pergunta=a+" + "+b+" = ?";
-correta=a+b;
-}
-
-if(serieEscolhida=="5"){
-pergunta=a+" × "+b+" = ?";
-correta=a*b;
-}
-
-if(serieEscolhida=="6"){
-pergunta=a+" × "+b+" + "+b+" = ?";
-correta=(a*b)+b;
-}
-
-if(serieEscolhida=="7"){
-let raiz=a*a;
-pergunta="√"+raiz+" = ?";
-correta=a;
-}
-
+let pergunta=""; let correta=0;
+if(serieEscolhida=="4"){ pergunta=a+" + "+b+" = ?"; correta=a+b; }
+if(serieEscolhida=="5"){ pergunta=a+" × "+b+" = ?"; correta=a*b; }
+if(serieEscolhida=="6"){ pergunta=a+" × "+b+" + "+b+" = ?"; correta=(a*b)+b; }
+if(serieEscolhida=="7"){ let raiz=a*a; pergunta="√"+raiz+" = ?"; correta=a; }
 let respostas=[correta,correta+1,correta-1,correta+2];
-
 respostas.sort(()=>Math.random()-0.5);
-
-todasPerguntas.push({
-p:pergunta,
-r:respostas,
-c:respostas.indexOf(correta)
-});
-
-}
-
-}
+todasPerguntas.push({p:pergunta, r:respostas, c:respostas.indexOf(correta)});
+}}
 
 function prepararPerguntas(){
-
 let copia=[...todasPerguntas];
-
 for(let i=0;i<10;i++){
-
 let idx=Math.floor(Math.random()*copia.length);
 perguntas.push(copia.splice(idx,1)[0]);
-
-}
-
-}
+}}
 
 function iniciarTimer(){
-
 tempo=10;
-
 let bar=document.getElementById("timeBar");
 bar.style.width="100%";
-
 clearInterval(timer);
-
 timer=setInterval(()=>{
-
 tempo--;
-
 document.getElementById("timer").innerText="Tempo: "+tempo;
 bar.style.width=(tempo*10)+"%";
-
-if(tempo<=0){
-clearInterval(timer);
-proximaPergunta();
-}
-
+if(tempo<=0){ clearInterval(timer); proximaPergunta(); }
 },1000);
-
 }
 
 function mostrarPergunta(){
-
 let q=perguntas[perguntaAtual];
-
 document.getElementById("pergunta").innerText=q.p;
-
 for(let i=0;i<4;i++){
-
 let btn=document.getElementById("r"+i);
 btn.innerText=q.r[i];
 btn.style.background="#222";
-
 }
-
 iniciarTimer();
-
 }
 
+// RESPOSTA COM SONS
 function responder(num){
-
 clearInterval(timer);
-
 let q=perguntas[perguntaAtual];
 let btn=document.getElementById("r"+num);
-
-if(num==q.c){
-
-btn.style.background="green";
-pontos++;
-
-}else{
-
-btn.style.background="red";
-
+if(num==q.c){ 
+    btn.style.background="green"; 
+    pontos++; 
+    document.getElementById("correctSound").play();
+} else { 
+    btn.style.background="red"; 
+    document.getElementById("wrongSound").play();
 }
-
-setTimeout(()=>{
-proximaPergunta();
-},800);
-
+setTimeout(()=>{ proximaPergunta(); },800);
 }
 
 function proximaPergunta(){
-
 perguntaAtual++;
-
-if(perguntaAtual<perguntas.length){
-mostrarPergunta();
-}else{
-mostrarRanking();
-}
-
+if(perguntaAtual<perguntas.length){ mostrarPergunta(); }
+else{ mostrarRanking(); }
 }
 
 function mostrarRanking(){
-
 db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:pontos});
-
 db.ref("rooms/"+roomCode+"/teams").once("value",snap=>{
-
 let lista=[];
-
-snap.forEach(child=>{
-lista.push({
-nome:child.key,
-score:child.val().score
-});
-});
-
+snap.forEach(child=>{ lista.push({nome:child.key, score:child.val().score}); });
 lista.sort((a,b)=>b.score-a.score);
-
 let vencedor=lista[0];
-
 document.getElementById("quiz").style.display="none";
 document.getElementById("winnerScreen").style.display="block";
-
-document.getElementById("winnerName").innerText=
-vencedor.nome+" venceu com "+vencedor.score+" pontos!";
-
+document.getElementById("winnerName").innerText=vencedor.nome+" venceu com "+vencedor.score+" pontos!";
 });
-
 }
 
+function abrirModal() { document.getElementById("devModal").style.display = "block"; }
+function fecharModal() { document.getElementById("devModal").style.display = "none"; }
+window.onclick = function(event) {
+    let modal = document.getElementById("devModal");
+    if (event.target == modal) { modal.style.display = "none"; }
+}
 </script>
 </body>
 </html>
