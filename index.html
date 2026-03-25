@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Classic Game Education</title>
+<title>Classic Game Education - V2.0</title>
 
 <style>
 body{
@@ -196,6 +196,9 @@ li {
             <option value="matematica">Matemática</option>
             <option value="portugues">Português</option>
             <option value="ciencias">Ciências</option>
+            <option value="historia">História</option>
+            <option value="filosofia">Filosofia</option>
+            <option value="projeto_de_vida">Projeto de Vida</option>
         </select>
         <br><br>
         <button onclick="createRoom()">Criar sala</button>
@@ -245,22 +248,15 @@ li {
   <div class="modal-content">
     <span class="close-btn" onclick="fecharModal()">&times;</span>
     <h2>CGE Studio</h2>
-    <p>Olá, somos os Desenvolvedores da <strong>Classic Games Education</strong> e desenvolvemos esse site de gaming para as escolas de todo o mundo!</p>
-    <p>Esta é a versão 1.0 do Site e nela existem alguns itens:</p>
+    <p>Olá, somos os Desenvolvedores da <strong>Classic Games Education</strong>!</p>
+    <p><strong>Versão 2.0 - Atualização de Matérias:</strong></p>
     <ul style="list-style: none; padding-left: 0;">
-      <li>• Criar equipes 🧒🧑‍🦰🧑‍🦳</li>
-      <li>• Entrar em equipes por códigos 👾</li>
-      <li>• 1 matéria disponível (matemática) ➕🟰</li>
-      <li>• Quiz de 10 perguntas ❓</li>
-      <li>• Tela de vencedor no final 🏆</li>
-      <li>• Séries escolares 🏫</li>
-    </ul>
-    <p><strong>Em breve:</strong></p>
-    <ul style="list-style: none; padding-left: 0;">
-      <li>• 3 matérias disponíveis.</li>
-      <li>• Mais séries escolares.</li>
-      <li>• Design melhorado.</li>
-      <li>• Melhor animação.</li>
+      <li>• Matemática ➕</li>
+      <li>• Português ✍️</li>
+      <li>• Ciências 🧬</li>
+      <li>• História 🏛️</li>
+      <li>• Filosofia 🤔</li>
+      <li>• Projeto de Vida 🚀</li>
     </ul>
     <p style="text-align:right; margin-top:20px;"><em>Ass: CGE Studio.</em></p>
   </div>
@@ -313,13 +309,9 @@ teamName=document.getElementById("teamName").value;
 serieEscolhida=document.getElementById("serie").value;
 materiaEscolhida=document.getElementById("materia").value;
 
-if(teamName==""){alert("Digite o nome");return;}
-if(serieEscolhida==""){alert("Escolha a série");return;}
-if(materiaEscolhida==""){alert("Escolha a matéria");return;}
-
-if(materiaEscolhida!="matematica"){
-alert("Erro! Esta matéria ainda não está disponível!");
-return;
+if(teamName=="" || serieEscolhida=="" || materiaEscolhida==""){
+    alert("Preencha todos os campos!");
+    return;
 }
 
 roomCode=generateCode();
@@ -341,11 +333,15 @@ teamName=document.getElementById("teamNameJoin").value;
 if(code==""||teamName==""){alert("Preencha tudo");return;}
 roomCode=code;
 db.ref("rooms/"+roomCode).once("value",snap=>{
-serieEscolhida=snap.val().serie;
-materiaEscolhida=snap.val().materia;
+    if(snap.exists()){
+        serieEscolhida=snap.val().serie;
+        materiaEscolhida=snap.val().materia;
+        db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
+        enterRoom();
+    } else {
+        alert("Sala não encontrada!");
+    }
 });
-db.ref("rooms/"+roomCode+"/teams/"+teamName).set({score:0});
-enterRoom();
 }
 
 function enterRoom(){
@@ -368,11 +364,10 @@ db.ref("rooms/"+roomCode+"/started").on("value",snap=>{
 if(snap.val()==true){
 document.getElementById("room").style.display="none";
 document.getElementById("quiz").style.display="block";
-// INICIA A MÚSICA
 document.getElementById("bgMusic").play();
 
 if(perguntas.length==0){
-gerarPerguntas();
+gerarPerguntasMatéria();
 prepararPerguntas();
 mostrarPergunta();
 }}} );
@@ -398,26 +393,102 @@ rank.appendChild(li);
 function startGame(){ db.ref("rooms/"+roomCode+"/started").set(true); }
 
 let todasPerguntas=[];
-function gerarPerguntas(){
-for(let i=0;i<50;i++){
-let a=Math.floor(Math.random()*10)+1;
-let b=Math.floor(Math.random()*10)+1;
-let pergunta=""; let correta=0;
-if(serieEscolhida=="4"){ pergunta=a+" + "+b+" = ?"; correta=a+b; }
-if(serieEscolhida=="5"){ pergunta=a+" × "+b+" = ?"; correta=a*b; }
-if(serieEscolhida=="6"){ pergunta=a+" × "+b+" + "+b+" = ?"; correta=(a*b)+b; }
-if(serieEscolhida=="7"){ let raiz=a*a; pergunta="√"+raiz+" = ?"; correta=a; }
-let respostas=[correta,correta+1,correta-1,correta+2];
-respostas.sort(()=>Math.random()-0.5);
-todasPerguntas.push({p:pergunta, r:respostas, c:respostas.indexOf(correta)});
-}}
+
+function gerarPerguntasMatéria(){
+    todasPerguntas = [];
+    let base = [];
+
+    if(materiaEscolhida == "matematica"){
+        for(let i=0; i<10; i++){
+            let a=Math.floor(Math.random()*10)+1; let b=Math.floor(Math.random()*10)+1;
+            let p = (serieEscolhida=="4") ? `${a}+${b}` : `${a}x${b}`;
+            let res = (serieEscolhida=="4") ? a+b : a*b;
+            base.push({p: p+" = ?", r:[res, res+2, res-1, res+5], c:0});
+        }
+    } else if(materiaEscolhida == "portugues"){
+        base = [
+            {p: "Qual o plural de 'Cidadão'?", r:["Cidadãos", "Cidadões", "Cidadães", "Cidadon"], c:0},
+            {p: "Antônimo de 'Alegre':", r:["Triste", "Feliz", "Contente", "Rápido"], c:0},
+            {p: "Qual palavra é um substantivo?", r:["Cachorro", "Correr", "Bonito", "Ontem"], c:0},
+            {p: "Qual o coletivo de 'Peixes'?", r:["Cardume", "Alcateia", "Enxame", "Rebanho"], c:0},
+            {p: "Sinônimo de 'Caminhar':", r:["Andar", "Parar", "Sentar", "Dormir"], c:0},
+            {p: "A palavra 'Felicidade' é um:", r:["Substantivo", "Verbo", "Adjetivo", "Artigo"], c:0},
+            {p: "Qual o feminino de 'Pai'?", r:["Mãe", "Irmã", "Tia", "Avó"], c:0},
+            {p: "Qual frase está no futuro?", r:["Eu comerei", "Eu comi", "Eu como", "Eu comia"], c:0},
+            {p: "O sinal '?' indica uma:", r:["Pergunta", "Pausa", "Surpresa", "Finalização"], c:0},
+            {p: "Qual palavra está escrita corretamente?", r:["Exceção", "Eçecão", "Esceção", "Exseção"], c:0}
+        ];
+    } else if(materiaEscolhida == "ciencias"){
+        base = [
+            {p: "O que as plantas precisam para a fotossíntese?", r:["Luz Solar", "Leite", "Carne", "Fogo"], c:0},
+            {p: "Qual o maior planeta do sistema solar?", r:["Júpiter", "Terra", "Marte", "Lua"], c:0},
+            {p: "Onde o oxigênio entra no corpo?", r:["Pulmões", "Estômago", "Coração", "Rins"], c:0},
+            {p: "Qual o estado físico da água na chuva?", r:["Líquido", "Sólido", "Gasoso", "Plasma"], c:0},
+            {p: "Qual destes é um animal mamífero?", r:["Baleia", "Tubarão", "Jacaré", "Pombo"], c:0},
+            {p: "O Sol é uma:", r:["Estrela", "Planeta", "Cometa", "Galáxia"], c:0},
+            {p: "Quantos planetas existem no Sistema Solar?", r:["8", "9", "7", "10"], c:0},
+            {p: "Qual órgão bombeia o sangue?", r:["Coração", "Cérebro", "Pulmão", "Fígado"], c:0},
+            {p: "O que é um animal onívoro?", r:["Come de tudo", "Só carne", "Só planta", "Só inseto"], c:0},
+            {p: "Qual o maior osso do corpo humano?", r:["Fêmur", "Rádio", "Costela", "Crânio"], c:0}
+        ];
+    } else if(materiaEscolhida == "historia"){
+        base = [
+            {p: "Quem descobriu o Brasil?", r:["Cabral", "Dom Pedro", "Colombo", "Zumbi"], c:0},
+            {p: "Em que ano o Brasil ficou independente?", r:["1822", "1500", "1990", "1889"], c:0},
+            {p: "Os primeiros habitantes do Brasil foram os...", r:["Indígenas", "Portugueses", "Italianos", "Gregos"], c:0},
+            {p: "Quem gritou 'Independência ou Morte'?", r:["D. Pedro I", "Tiradentes", "Zumbi", "Cabral"], c:0},
+            {p: "Qual era o principal produto no início do Brasil?", r:["Pau-Brasil", "Café", "Ouro", "Soja"], c:0},
+            {p: "Em qual continente fica o Egito Antigo?", r:["África", "Europa", "Ásia", "América"], c:0},
+            {p: "Quem libertou os escravos no Brasil?", r:["Princesa Isabel", "D. Pedro II", "Getúlio Vargas", "Cabral"], c:0},
+            {p: "Qual a capital atual do Brasil?", r:["Brasília", "Rio de Janeiro", "Salvador", "São Paulo"], c:0},
+            {p: "A queda do muro de Berlim aconteceu em qual país?", r:["Alemanha", "França", "Rússia", "EUA"], c:0},
+            {p: "Quem foi o primeiro presidente do Brasil?", r:["Deodoro da Fonseca", "Vargas", "Lula", "Sarney"], c:0}
+        ];
+    } else if(materiaEscolhida == "filosofia"){
+        base = [
+            {p: "Quem disse 'Só sei que nada sei'?", r:["Sócrates", "Platão", "Nietzsche", "Enzo"], c:0},
+            {p: "Filosofia significa amor à...", r:["Sabedoria", "Riqueza", "Guerra", "Natureza"], c:0},
+            {p: "Qual país é o berço da filosofia?", r:["Grécia", "Brasil", "Egito", "China"], c:0},
+            {p: "O que é ética?", r:["Agir corretamente", "Ganhar dinheiro", "Ser famoso", "Ser forte"], c:0},
+            {p: "Quem foi o mestre de Platão?", r:["Sócrates", "Aristóteles", "Descartes", "Kant"], c:0},
+            {p: "O que significa 'Mito'?", r:["Narrativa simbólica", "Uma mentira", "Uma lei", "Uma cor"], c:0},
+            {p: "Quem disse 'Penso, logo existo'?", r:["Descartes", "Sócrates", "Locke", "Marx"], c:0},
+            {p: "Qual o foco da Estética?", r:["Beleza e arte", "Números", "Estrelas", "Dinheiro"], c:0},
+            {p: "O que é lógica?", r:["Regras do pensamento", "Um esporte", "Um sentimento", "Poder"], c:0},
+            {p: "A palavra Filosofia vem de Philo + Sophia. Sophia é:", r:["Conhecimento", "Amor", "Paz", "Guerra"], c:0}
+        ];
+    } else if(materiaEscolhida == "projeto_de_vida"){
+        base = [
+            {p: "O que é fundamental para alcançar metas?", r:["Planejamento", "Sorte", "Dormir muito", "Reclamar"], c:0},
+            {p: "Ser resiliente é...", r:["Superar desafios", "Desistir", "Gritar", "Fugir"], c:0},
+            {p: "O que é empatia?", r:["Sentir a dor do outro", "Ser egoísta", "Ignorar", "Brigar"], c:0},
+            {p: "O autoconhecimento serve para:", r:["Entender a si mesmo", "Mudar os outros", "Comprar coisas", "Ser melhor que todos"], c:0},
+            {p: "O que é protagonismo?", r:["Ser dono da sua história", "Deixar os outros decidirem", "Ficar parado", "Copiar os outros"], c:0},
+            {p: "Um objetivo deve ser:", r:["Claro e alcançável", "Impossível", "Confuso", "Esquecido"], c:0},
+            {p: "O que ajuda na organização do tempo?", r:["Cronograma/Agenda", "Redes sociais", "TV o dia todo", "Procrastinar"], c:0},
+            {p: "O que são 'soft skills'?", r:["Habilidades emocionais", "Habilidades técnicas", "Peças de computador", "Esportes"], c:0},
+            {p: "A ética no projeto de vida ajuda a:", r:["Viver bem em sociedade", "Ganhar dos outros", "Mentir melhor", "Ficar rico"], c:0},
+            {p: "Qual a importância de sonhar?", r:["Ter motivação", "Ficar triste", "Perder tempo", "Dormir mais"], c:0}
+        ];
+    }
+
+    base.forEach(item => {
+        let corretaValor = item.r[item.c];
+        item.r.sort(() => Math.random() - 0.5);
+        item.c = item.r.indexOf(corretaValor);
+        todasPerguntas.push(item);
+    });
+}
 
 function prepararPerguntas(){
-let copia=[...todasPerguntas];
-for(let i=0;i<10;i++){
-let idx=Math.floor(Math.random()*copia.length);
-perguntas.push(copia.splice(idx,1)[0]);
-}}
+    perguntas = [];
+    let copia=[...todasPerguntas];
+    let qtd = Math.min(10, copia.length);
+    for(let i=0;i<qtd;i++){
+        let idx=Math.floor(Math.random()*copia.length);
+        perguntas.push(copia.splice(idx,1)[0]);
+    }
+}
 
 function iniciarTimer(){
 tempo=10;
@@ -433,17 +504,17 @@ if(tempo<=0){ clearInterval(timer); proximaPergunta(); }
 }
 
 function mostrarPergunta(){
+if(!perguntas[perguntaAtual]) { mostrarRanking(); return; }
 let q=perguntas[perguntaAtual];
 document.getElementById("pergunta").innerText=q.p;
 for(let i=0;i<4;i++){
 let btn=document.getElementById("r"+i);
-btn.innerText=q.r[i];
+btn.innerText = q.r[i] !== undefined ? q.r[i] : "---";
 btn.style.background="#222";
 }
 iniciarTimer();
 }
 
-// RESPOSTA COM SONS
 function responder(num){
 clearInterval(timer);
 let q=perguntas[perguntaAtual];
@@ -480,10 +551,6 @@ document.getElementById("winnerName").innerText=vencedor.nome+" venceu com "+ven
 
 function abrirModal() { document.getElementById("devModal").style.display = "block"; }
 function fecharModal() { document.getElementById("devModal").style.display = "none"; }
-window.onclick = function(event) {
-    let modal = document.getElementById("devModal");
-    if (event.target == modal) { modal.style.display = "none"; }
-}
 </script>
 </body>
 </html>
